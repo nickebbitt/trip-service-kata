@@ -5,6 +5,8 @@ import org.craftedsw.tripservicekata.user.StubUserSession;
 import org.craftedsw.tripservicekata.user.User;
 import org.junit.Test;
 
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -44,19 +46,23 @@ public class TripServiceTest {
         assertEquals(friendUser, mockTripDAO.calledWithUser());
     }
 
-//    @Test
-//    public void friendUserWithTrips() {
-//        final User loggedInUser = new User();
-//        final User friendUser = new User();
-//        final Trip friendTrip = new Trip();
-//        friendUser.addTrip(friendTrip);
-//
-//        friendUser.addFriend(loggedInUser);
-//
-//        final TripService tripService = new TripService(new StubUserSession(loggedInUser));
-//
-//        assertEquals(1, tripService.getTripsByUser(friendUser).size());
-//        assertEquals(friendTrip, tripService.getTripsByUser(friendUser).get(0));
-//    }
+    @Test
+    public void friendUserWithTrips() {
+        final User loggedInUser = new User();
+        final User friendUser = new User();
+        final Trip friendTrip = new Trip();
+        friendUser.addTrip(friendTrip);
+
+        friendUser.addFriend(loggedInUser);
+
+        MockTripDAO mockTripDAO = new MockTripDAO();
+
+        final TripService tripService = new TripService(new StubUserSession(loggedInUser), mockTripDAO);
+
+        final List<Trip> tripsByUser = tripService.getTripsByUser(friendUser);
+        assertEquals(1, tripsByUser.size());
+        assertEquals(friendTrip, tripsByUser.get(0));
+        assertEquals(friendUser, mockTripDAO.calledWithUser());
+    }
 
 }
