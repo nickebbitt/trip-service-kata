@@ -1,40 +1,47 @@
 package org.craftedsw.tripservicekata.trip;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.craftedsw.tripservicekata.exception.UserNotLoggedInException;
 import org.craftedsw.tripservicekata.user.User;
 import org.craftedsw.tripservicekata.user.UserSession;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class TripService {
 
-	private final UserSession userSession;
-	private final TripDAO tripDAO;
+    private final UserSession userSession;
+    private final TripDAO tripDAO;
 
-	public TripService(UserSession userSession, TripDAO tripDAO) {
-		this.userSession = userSession;
-		this.tripDAO = tripDAO;
-	}
+    public TripService(UserSession userSession, TripDAO tripDAO) {
+        this.userSession = userSession;
+        this.tripDAO = tripDAO;
+    }
 
-	public List<Trip> getTripsByUser(User user) throws UserNotLoggedInException {
-		List<Trip> tripList = new ArrayList<Trip>();
-		User loggedUser = userSession.getLoggedUser();
-		boolean isFriend = false;
-		if (loggedUser != null) {
-			for (User friend : user.getFriends()) {
-				if (friend.equals(loggedUser)) {
-					isFriend = true;
-					break;
-				}
-			}
-			if (isFriend) {
-				tripList = tripDAO.findTripsByUser(user);
-			}
-			return tripList;
-		} else {
-			throw new UserNotLoggedInException();
-		}
-	}
-	
+    List<Trip> getTripsByUser(User user) throws UserNotLoggedInException {
+        List<Trip> tripList = new ArrayList<>();
+        User loggedUser = loggedUser();
+        if (userIsFriend(user, loggedUser)) {
+            tripList = tripDAO.findTripsByUser(user);
+        }
+        return tripList;
+    }
+
+    private User loggedUser() {
+        final User loggedUser = userSession.getLoggedUser();
+        if (loggedUser == null) {
+            throw new UserNotLoggedInException();
+        } else {
+            return loggedUser;
+        }
+    }
+
+    private boolean userIsFriend(User user, User loggedUser) {
+        for (User friend : user.getFriends()) {
+            if (friend.equals(loggedUser)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
